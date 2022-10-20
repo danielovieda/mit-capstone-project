@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Navigation from "./components/Navigation";
+import { useState } from "react";
+import Homepage from "./pages/Homepage";
+import { UserContext } from "./context/userContext";
+import Account from "./pages/Account";
 
 function App() {
+  const [userInfo, setUserInfo] = useState({email: null, password: null});
+
+  const logout = () => {
+    setUserInfo({email: null, password: null})
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+    <UserContext.Provider value={{userInfo, setUserInfo, logout}}>
+      <Navigation />
+      <div class="container-lg">
+        <div class="row">
+          <div class="col-md-6 offset-md-3">{!userInfo.email && <Homepage />}</div>
+          <div class="col-md-6 offset-md-3">{userInfo.email && <Account />}</div>
+        </div>
+      </div>
+      </UserContext.Provider>
+    </>
   );
 }
 

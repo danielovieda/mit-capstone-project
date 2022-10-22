@@ -1,9 +1,10 @@
 import { Formik, Form, Field } from "formik";
 import { useContext } from "react";
 import { UserContext } from "../context/userContext";
+import { ACTION } from "../App";
 
 export default function Homepage() {
-    const { userInfo, setUserInfo } = useContext(UserContext);
+  const { state, dispatch } = useContext(UserContext);
 
   return (
     <>
@@ -21,8 +22,12 @@ export default function Homepage() {
           </p>
         </div>
       </div>
+      
       <Formik
-        initialValues={{ email: "", password: "" }}
+        initialValues={{
+          email: state.email,
+          password: state.password,
+        }}
         validate={(values) => {
           const errors = {};
           if (!values.email) {
@@ -36,7 +41,7 @@ export default function Homepage() {
         }}
         onSubmit={(values, { setSubmitting }) => {
           setTimeout(() => {
-            setUserInfo(values);
+            dispatch({ type: ACTION.USER, payload: values });
             setSubmitting(false);
           }, 400);
         }}

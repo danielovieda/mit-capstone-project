@@ -5,7 +5,7 @@ import Deposit from "./Deposit";
 import Withdrawal from "./Withdraw";
 
 export default function Account() {
-  const { userInfo } = useContext(UserContext);
+  const { state, dispatch } = useContext(UserContext);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
 
@@ -16,7 +16,7 @@ export default function Account() {
           <h4>Account Details</h4>
         </div>
         <hr />
-        <b>{userInfo.email}</b>
+        <b>{state.email}</b>
         <hr />
         <div class="row ">
           <div class="col-sm-6 text-center">

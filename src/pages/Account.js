@@ -1,13 +1,9 @@
 import { useContext } from "react";
 import { UserContext } from "../context/userContext";
-import { useState } from "react";
-import Deposit from "./Deposit";
-import Withdrawal from "./Withdraw";
+import { Link } from "react-router-dom";
 
 export default function Account() {
-  const { state, dispatch } = useContext(UserContext);
-  const [showDeposit, setShowDeposit] = useState(false);
-  const [showWithdraw, setShowWithdraw] = useState(false);
+  const { state } = useContext(UserContext);
 
   return (
     <>
@@ -20,32 +16,15 @@ export default function Account() {
         <hr />
         <div class="row ">
           <div class="col-sm-6 text-center">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setShowDeposit(!showDeposit);
-                setShowWithdraw(false);
-              }}
-            >
-              Deposit
-            </button>
+            <Link to="/deposit">
+            <button className="btn btn-primary mb-3">Deposit Money</button></Link>
           </div>
           <div class="col-sm-6 text-center">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setShowWithdraw(!showWithdraw);
-                setShowDeposit(false);
-              }}
-            >
-              Withdrawal
-            </button>
+          <Link to="/withdraw">
+            <button className="mb-3 btn btn-primary">Get Money</button></Link>
           </div>
         </div>
       </div>
-      {showDeposit && <Deposit />}
-
-      {showWithdraw && <Withdrawal />}
     </>
   );
 }

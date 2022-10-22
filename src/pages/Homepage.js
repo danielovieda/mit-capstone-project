@@ -2,6 +2,8 @@ import { Formik, Form, Field } from "formik";
 import { useContext } from "react";
 import { UserContext } from "../context/userContext";
 import { ACTION } from "../App";
+import { SomeAlert } from "./Withdraw";
+import { Link } from "react-router-dom";
 
 export default function Homepage() {
   const { state, dispatch } = useContext(UserContext);
@@ -22,99 +24,121 @@ export default function Homepage() {
           </p>
         </div>
       </div>
-      
-      <Formik
-        initialValues={{
-          email: state.email,
-          password: state.password,
-        }}
-        validate={(values) => {
-          const errors = {};
-          if (!values.email) {
-            errors.email = "You forgot your e-mail!";
-          } else if (
-            !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-          ) {
-            errors.email = "Invalid email address!";
-          }
-          return errors;
-        }}
-        onSubmit={(values, { setSubmitting }) => {
-          setTimeout(() => {
-            dispatch({ type: ACTION.USER, payload: values });
-            setSubmitting(false);
-          }, 400);
-        }}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          isSubmitting,
-          /* and other goodies */
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">
-                Email address
-              </label>
-              <input
-                name="email"
-                type="email"
-                class="form-control"
-                id="exampleInputEmail1"
-                aria-describedby="emailHelp"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.email}
-              />
-              <div id="emailHelp" class="form-text">
-                We'll never share your email with anyone else.
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                class="form-control"
-                id="exampleInputPassword1"
-                name="password"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.password}
-              />
-            </div>
-            {errors.email && touched.email && (
-              <div class="mb-3">
-                <div
-                  class="alert alert-danger alert-dismissible fade show"
-                  role="alert"
-                >
-                  {errors.email}
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"
-                  ></button>
-                </div>
-              </div>
-            )}
-            <div className="mb-3">
-              <button type="submit" class="btn btn-primary">
-                Login
-              </button>
-            </div>
 
-            <div className="mb-3">Don't have an account? Create one!</div>
-          </form>
-        )}
-      </Formik>
+      <div className="card shadow mb-3 p-3">
+        <div className="card-body">
+          {state.email != null && state.invalidLogin > 0 && state.invalidLogin <= 3 && (
+            <SomeAlert alertStyle="alert alert-danger">
+              Your password was incorrect. You may try logging in{" "}
+              {5 - state.invalidLogin} more times before any account information
+              is deleted. For your safety.
+              <small>You shouldn't be using your real password here!</small>
+            </SomeAlert>
+          )}
+          {state.email != null && state.invalidLogin === 4 &&
+          <SomeAlert alertStyle="alert alert-danger">
+          <h3>This is your last login attempt before all account information is deleted.</h3>
+        </SomeAlert>
+          }
+          {state.email != null && state.accountDeleted &&
+          <SomeAlert alertStyle="alert alert-danger">
+          <h3>Your account has been deleted. Please create a new account.</h3>
+        </SomeAlert>
+          }
+          <Formik
+            initialValues={{
+              email: state.email,
+              password: "",
+            }}
+            validate={(values) => {
+              const errors = {};
+              if (!values.email) {
+                errors.email = "You forgot your e-mail!";
+              } else if (
+                !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+              ) {
+                errors.email = "Invalid email address!";
+              }
+              return errors;
+            }}
+            onSubmit={(values, { setSubmitting }) => {
+              setTimeout(() => {
+                dispatch({ type: ACTION.LOGIN, payload: values });
+                setSubmitting(false);
+              }, 400);
+            }}
+          >
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              isSubmitting,
+              /* and other goodies */
+            }) => (
+              <form onSubmit={handleSubmit}>
+                <div class="mb-3">
+                  <label for="exampleInputEmail1" class="form-label">
+                    Email address
+                  </label>
+                  <input
+                    name="email"
+                    type="email"
+                    class="form-control"
+                    id="exampleInputEmail1"
+                    aria-describedby="emailHelp"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.email}
+                  />
+                  <div id="emailHelp" class="form-text">
+                    We'll never share your email with anyone else.
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="exampleInputPassword1"
+                    name="password"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.password}
+                  />
+                </div>
+                {errors.email && touched.email && (
+                  <div class="mb-3">
+                    <div
+                      class="alert alert-danger alert-dismissible fade show"
+                      role="alert"
+                    >
+                      {errors.email}
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                  </div>
+                )}
+                <div className="mb-3">
+                  <button type="submit" class="btn btn-primary">
+                    Login
+                  </button>
+                </div>
+
+                <div className="mb-3">Don't have an account? <Link to="/create-account">Create one!</Link></div>
+              </form>
+            )}
+          </Formik>
+        </div>
+      </div>
     </>
   );
 }

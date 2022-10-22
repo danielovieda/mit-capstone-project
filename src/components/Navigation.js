@@ -38,7 +38,7 @@ export default function Navigation() {
                   </div>
                 </Link>
               </li>
-              {state.email && (
+              {state.token && (
                 <li className="nav-item dropdown">
                   <div
                     className="nav-link dropdown-toggle"
@@ -81,7 +81,7 @@ export default function Navigation() {
                   </ul>
                 </li>
               )}
-              {state.email && (
+              {state.token && (
                 <li className="nav-item">
                     <Link
                         to="/"
@@ -99,7 +99,7 @@ export default function Navigation() {
               )}
               
             </ul>
-            {state.email && <li className="d-flex">
+            {state.token && <li className="d-flex">
               <h4><span class="badge bg-primary">Balance: {formatter.format(state.balance)}</span></h4>
               </li> }
           </div>

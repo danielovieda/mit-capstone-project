@@ -28,7 +28,7 @@ export default function Transactions() {
           {state.transactions.map((item, index) => {
             return (
               <tr>
-                <th scope="row">{index}</th>
+                <th scope="row">{index+1}</th>
                 <td>{dayjs(item.id).format("MM/DD/YY hh:mma")}</td>
                 <td>{item.type}</td>
                 <td style={{ color: item.amount < 0 ? "red" : "green" }}>

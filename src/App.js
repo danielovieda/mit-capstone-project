@@ -1,6 +1,6 @@
 import "./App.css";
 import Navigation from "./components/Navigation";
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import Homepage from "./pages/Homepage";
 import { UserContext } from "./context/userContext";
 import Account from "./pages/Account";
@@ -13,12 +13,20 @@ import {
 import Transactions from "./pages/Transactions";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
+import Snackbar from "@mui/material/Snackbar";
+import CreateAccount from "./pages/CreateAccount";
 
 export const ACTION = {
   DEPOSIT: "deposit",
   WITHDRAW: "withdraw",
   USER: "user",
   LOGOUT: "logout",
+  LOGIN: "login",
+  FEE: "0.15",
+  DAILY_LIMIT: 10000,
+  SHOW_DEP: "show_deposit",
+  SHOW_WIT: "show_withdrawal",
+  CREATE_ACCOUNT: "create_account",
 };
 
 const initialState = {
@@ -28,11 +36,13 @@ const initialState = {
   transactions: [
     {
       id: Date.now(),
-      type: "New Account Created",
+      type: "New Account",
       amount: 0,
     },
   ],
   balance: 0,
+  token: null,
+  invalidLogin: 0,
 };
 
 function reducer(state, action) {
@@ -48,22 +58,75 @@ function reducer(state, action) {
         ...state,
         transactions: [
           ...state.transactions,
-          newTransaction("deposit", action.payload),
+          newTransaction("Online Deposit", action.payload),
         ],
-        balance: calculateBalance([...state.transactions, newTransaction("deposit", action.payload)]),
+        balance: calculateBalance([
+          ...state.transactions,
+          newTransaction("Balance", action.payload),
+        ]),
       };
     case ACTION.WITHDRAW:
-      console.log({ state });
-      return {
-        ...state,
-        transactions: [
-          ...state.transactions,
-          newTransaction("withdraw", action.payload),
-        ],
-        balance: calculateBalance([...state.transactions, newTransaction("deposit", action.payload)]),
-      };
+      if (Math.abs(parseFloat(action.payload)) > parseFloat(state.balance)) {
+        let transactionsWithFees = [];
+        let transactionItems = [
+          newTransaction(
+            "Overdraft Fee",
+            parseFloat(action.payload * ACTION.FEE)
+          ),
+          newTransaction("Online Withdrawal", action.payload),
+        ];
+        return {
+          ...state,
+          transactions: transactionsWithFees.concat(
+            ...state.transactions,
+            transactionItems
+          ),
+          balance: calculateBalance(
+            transactionsWithFees.concat(...state.transactions, transactionItems)
+          ),
+        };
+      } else {
+        return {
+          ...state,
+          transactions: [
+            ...state.transactions,
+            newTransaction("Online Withdrawal", action.payload),
+          ],
+          balance: calculateBalance([
+            ...state.transactions,
+            newTransaction("Online Withdrawal", action.payload),
+          ]),
+        };
+      }
     case ACTION.LOGOUT:
-      return initialState;
+      return { ...state, token: false };
+    case ACTION.LOGIN:
+      if (state.invalidLogin > 5) {
+        return { ...initialState, accountDeleted: true };
+      }
+      if (state.password === action.payload.password) {
+        return {
+          ...state,
+          token: Date.now(),
+          invalidLogin: 0,
+          accountDeleted: false,
+        };
+      } else {
+        return { ...state, invalidLogin: state.invalidLogin + 1 };
+      }
+
+    case ACTION.SHOW_DEP:
+      return { ...state, showDeposit: true, showWithdraw: false };
+    case ACTION.SHOW_WIT:
+      return { ...state, showWithdraw: true, showDeposit: false };
+    case ACTION.CREATE_ACCOUNT:
+      return {
+        ...initialState,
+        name: action.payload.name,
+        email: action.payload.email,
+        password: action.payload.password,
+        token: Date.now(),
+      };
     default:
       throw new Error();
   }
@@ -82,15 +145,42 @@ function calculateBalance(transactions) {
       item.amount === ""
     ) {
     } else {
-      total = total + parseInt(item.amount, 10);
+      total = total + parseFloat(item.amount);
     }
   });
 
   return total;
 }
 
+const Page404 = () => {
+  return (
+    <div
+      class="card text-white bg-danger mb-3 mx-auto mt-5 shadow-lg"
+      style={{ maxWidth: "25rem" }}
+    >
+      <div class="card-body">
+        <h5 class="card-title">Unauthorized</h5>
+        <p class="card-text">
+          You are attempting to access a page that required you to be logged in.
+          Please login then try again.
+        </p>
+      </div>
+    </div>
+  );
+};
+
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(
+    reducer,
+    JSON.parse(localStorage.getItem("fake_bank")) || initialState
+  );
+
+  useEffect(() => {
+    if (state.accountDeleted) {
+      localStorage.removeItem("fake_bank");
+    }
+    localStorage.setItem("fake_bank", JSON.stringify(state));
+  }, [state]);
 
   const logout = () => {
     dispatch({ type: ACTION.LOGOUT });
@@ -99,8 +189,8 @@ function App() {
   const YourHomepage = () => {
     return (
       <>
-        {!state.email && <Homepage />}
-        {state.email && <Account />}
+        {!state.token && <Homepage />}
+        {state.token && <Account />}
       </>
     );
   };
@@ -114,12 +204,17 @@ function App() {
             <div class="row">
               <div class="col-md-6 offset-md-3">
                 <Routes>
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/deposit" element={<Deposit />} />
-                  <Route path="/withdraw" element={<Withdraw />} />
-                  <Route path="/transactions" element={<Transactions />} />
+                  {state.token && (
+                    <>
+                      <Route path="/account" element={<Account />} />
+                      <Route path="/deposit" element={<Deposit />} />
+                      <Route path="/withdraw" element={<Withdraw />} />
+                      <Route path="/transactions" element={<Transactions />} />
+                    </>
+                  )}
+                  <Route path="/create-account" element={<CreateAccount />} />
                   <Route exact path="/" element={<YourHomepage />} />
-                  <Route path="*" element={<p>This page doesn't exist.</p>} />
+                  <Route path="*" element={<Page404 />} />
                 </Routes>
               </div>
             </div>

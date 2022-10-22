@@ -5,6 +5,12 @@ import { Link } from "react-router-dom";
 export default function Navigation() {
   const { state, dispatch, logout } = useContext(UserContext);
 
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  
+  });
+
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -91,11 +97,13 @@ export default function Navigation() {
                   </div></Link>
                 </li>
               )}
-              {state.email && <li className="nav-item">
-              <span class="badge bg-primary">Balance: ${state.balance}</span>
-              </li> }
+              
             </ul>
+            {state.email && <li className="d-flex">
+              <h4><span class="badge bg-primary">Balance: {formatter.format(state.balance)}</span></h4>
+              </li> }
           </div>
+          
         </div>
       </nav>
     </>

@@ -17,12 +17,12 @@ import Withdraw from "./pages/Withdraw";
 export const ACTION = {
   DEPOSIT: "deposit",
   WITHDRAW: "withdraw",
-  TRANSACTIONS: "transactions",
   USER: "user",
   LOGOUT: "logout",
 };
 
 const initialState = {
+  name: null,
   email: null,
   password: "",
   transactions: [
@@ -62,8 +62,6 @@ function reducer(state, action) {
         ],
         balance: calculateBalance([...state.transactions, newTransaction("deposit", action.payload)]),
       };
-    case ACTION.TRANSACTIONS:
-      return state.transactions;
     case ACTION.LOGOUT:
       return initialState;
     default:

@@ -43,17 +43,9 @@ export default function Account() {
           </div>
         </div>
       </div>
-      {showDeposit && (
-        <div class="mt-3 shadow p-3 rounded">
-          <Deposit />
-        </div>
-      )}
+      {showDeposit && <Deposit />}
 
-      {showWithdraw && (
-        <div class="mt-3 shadow p-3 rounded">
-          <Withdrawal />
-        </div>
-      )}
+      {showWithdraw && <Withdrawal />}
     </>
   );
 }

@@ -26,8 +26,9 @@ export default function Homepage() {
       </div>
 
       <div className="card shadow mb-3 p-3">
+        <h4>Account Login</h4>
         <div className="card-body">
-          {state.email != null && state.invalidLogin > 0 && state.invalidLogin <= 3 && (
+          {state.invalidLogin > 0 && state.invalidLogin <= 3 && (
             <SomeAlert alertStyle="alert alert-danger">
               Your password was incorrect. You may try logging in{" "}
               {5 - state.invalidLogin} more times before any account information
@@ -35,16 +36,24 @@ export default function Homepage() {
               <small>You shouldn't be using your real password here!</small>
             </SomeAlert>
           )}
-          {state.email != null && state.invalidLogin === 4 &&
-          <SomeAlert alertStyle="alert alert-danger">
-          <h3>This is your last login attempt before all account information is deleted.</h3>
-        </SomeAlert>
-          }
-          {state.email != null && state.accountDeleted &&
-          <SomeAlert alertStyle="alert alert-danger">
-          <h3>Your account has been deleted. Please create a new account.</h3>
-        </SomeAlert>
-          }
+          {state.invalidLogin === 4 && (
+            <SomeAlert alertStyle="alert alert-danger">
+              <h3>
+                This is your last login attempt before all account information
+                is deleted.
+              </h3>
+            </SomeAlert>
+          )}
+          {state.accountDeleted && (
+            <SomeAlert alertStyle="alert alert-danger">
+              <h3>Your account has been deleted.</h3>
+            </SomeAlert>
+          )}
+          {state.userNotFound && (
+            <SomeAlert alertStyle="alert alert-info">
+              This account was not found.
+            </SomeAlert>
+          )}
           <Formik
             initialValues={{
               email: state.email,
@@ -93,9 +102,6 @@ export default function Homepage() {
                     onBlur={handleBlur}
                     value={values.email}
                   />
-                  <div id="emailHelp" class="form-text">
-                    We'll never share your email with anyone else.
-                  </div>
                 </div>
                 <div class="mb-3">
                   <label for="exampleInputPassword1" class="form-label">
@@ -133,7 +139,10 @@ export default function Homepage() {
                   </button>
                 </div>
 
-                <div className="mb-3">Don't have an account? <Link to="/create-account">Create one!</Link></div>
+                <div className="mb-3">
+                  Don't have an account?{" "}
+                  <Link to="/create-account">Create one!</Link>
+                </div>
               </form>
             )}
           </Formik>

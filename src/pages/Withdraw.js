@@ -60,7 +60,7 @@ export default function Withdraw() {
         onClose={closeSnackbar}
       />
       <div className="card mt-3 shadow p-2">
-        <h5>Make a Withdrawal</h5>
+        <h5 className="mt-2">Make a Withdrawal</h5>
 
         {state.balance <= 0 && (
           <SomeAlert alertStyle="alert alert-danger">

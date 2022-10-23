@@ -38,6 +38,37 @@ export default function Navigation() {
                   </div>
                 </Link>
               </li>
+              {!state.token && (
+                <li className="nav-item">
+                    <Link
+                        to="/create-account"
+                        style={{ textDecoration: "none" }}
+                      >
+                  <div
+                    className="nav-link"
+                    tabindex="-1"
+                    aria-disabled="true"
+                  >
+                    Create Account
+                  </div></Link>
+                </li>
+              )}
+
+              {state.token && (
+                <li className="nav-item">
+                    <Link
+                        to="/account"
+                        style={{ textDecoration: "none" }}
+                      >
+                  <div
+                    className="nav-link"
+                    tabindex="-1"
+                    aria-disabled="true"
+                  >
+                    My Account
+                  </div></Link>
+                </li>
+              )}
               {state.token && (
                 <li className="nav-item dropdown">
                   <div

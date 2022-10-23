@@ -24,9 +24,8 @@ export const ACTION = {
   LOGIN: "login",
   FEE: "0.15",
   DAILY_LIMIT: 10000,
-  SHOW_DEP: "show_deposit",
-  SHOW_WIT: "show_withdrawal",
   CREATE_ACCOUNT: "create_account",
+  DELETE_ACCOUNT: "delete_account"
 };
 
 const initialState = {
@@ -101,24 +100,29 @@ function reducer(state, action) {
     case ACTION.LOGOUT:
       return { ...state, token: false };
     case ACTION.LOGIN:
-      if (state.invalidLogin > 5) {
-        return { ...initialState, accountDeleted: true };
+      let savedState = JSON.parse(localStorage.getItem(action.payload.email));
+      if (savedState) {
+        if (state.invalidLogin > 4) {
+          localStorage.removeItem(action.payload.email);
+          return { ...state, accountDeleted: true, userNotFound: false};
+        }
+        if (savedState.password === action.payload.password) {
+          
+          return {
+            ...savedState,
+            token: Date.now(),
+            invalidLogin: 0,
+            accountDeleted: false,
+            userNotFound: false
+          };
+        } else {
+          console.log(state)
+          return { ...state, invalidLogin: state.invalidLogin + 1, userNotFound: false };
+        }
       }
-      if (state.password === action.payload.password) {
-        return {
-          ...state,
-          token: Date.now(),
-          invalidLogin: 0,
-          accountDeleted: false,
-        };
-      } else {
-        return { ...state, invalidLogin: state.invalidLogin + 1 };
-      }
-
-    case ACTION.SHOW_DEP:
-      return { ...state, showDeposit: true, showWithdraw: false };
-    case ACTION.SHOW_WIT:
-      return { ...state, showWithdraw: true, showDeposit: false };
+        else {
+          return {...state, userNotFound: true}
+        }
     case ACTION.CREATE_ACCOUNT:
       return {
         ...initialState,
@@ -127,6 +131,9 @@ function reducer(state, action) {
         password: action.payload.password,
         token: Date.now(),
       };
+    case ACTION.DELETE_ACCOUNT:
+      localStorage.removeItem(state.email);
+      return {...initialState}
     default:
       throw new Error();
   }
@@ -172,14 +179,12 @@ const Page404 = () => {
 function App() {
   const [state, dispatch] = useReducer(
     reducer,
-    JSON.parse(localStorage.getItem("fake_bank")) || initialState
+    initialState
   );
 
   useEffect(() => {
-    if (state.accountDeleted) {
-      localStorage.removeItem("fake_bank");
-    }
-    localStorage.setItem("fake_bank", JSON.stringify(state));
+    if (state.accountToDelete) localStorage.removeItem(state.accountToDelete);
+    if (state.email && state.token) localStorage.setItem(`${state.email}`, JSON.stringify(state));
   }, [state]);
 
   const logout = () => {

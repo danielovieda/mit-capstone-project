@@ -5,6 +5,7 @@ import { ACTION } from "../App";
 import { SomeAlert } from "./Withdraw";
 import * as Yup from "yup";
 import { Link } from "react-router-dom";
+import Logo from "../assets/logo.png"
 
 const PASS_REQ =
   "Your password must be: minimum eight characters, maximum sixteen characters, at least one letter, one number and one special character.";
@@ -51,6 +52,8 @@ export default function CreateAccount() {
     {!state.token &&
       <div className="card shadow mt-3 p-3">
         <div className="card-body">
+            <div><img src={Logo} alt="Bank of Fake-Merica" className="img-fluid mb-3"/></div>
+            <div><h3>Create New Account</h3></div>
           <Formik
             initialValues={{
               name: "",

@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { UserContext } from "../context/userContext";
 import { Link } from "react-router-dom";
+import Logo from "../assets/logo.png"
 
 export default function Navigation() {
   const { state, dispatch, logout } = useContext(UserContext);
@@ -15,8 +16,8 @@ export default function Navigation() {
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
-          <div className="navbar-brand" href="#">
-            Bank of Fake-Merica
+          <div className="navbar-brand" href="#" width="100" height="51">
+            <img src={Logo} width="75" height="38" alt="Bank of Fake-Merica" />
           </div>
           <button
             className="navbar-toggler"

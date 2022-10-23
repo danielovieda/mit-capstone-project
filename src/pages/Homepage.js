@@ -51,7 +51,7 @@ export default function Homepage() {
           )}
           {state.userNotFound && (
             <SomeAlert alertStyle="alert alert-info">
-              This account was not found.
+              Double-check your email or <Link to="/create-account">create a new account</Link>.
             </SomeAlert>
           )}
           <Formik

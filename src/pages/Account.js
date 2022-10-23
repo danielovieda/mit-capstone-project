@@ -3,6 +3,7 @@ import { UserContext } from "../context/userContext";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ACTION } from "../App";
+import Logo from "../assets/logo.png"
 
 export default function Account() {
   const { state, dispatch } = useContext(UserContext);
@@ -19,8 +20,10 @@ export default function Account() {
   return (
     <>
       <div class="mt-3 shadow p-3 rounded">
-        <div class="p-2 pb-0">
-          <h4>Account Details</h4>
+        <div class="row p-2 pb-0">
+            <div className="col-sm-2"><img src={Logo} width={50} height={50} alt="Logo" /></div>
+            <div className="col-sm-10"><h4>Account Details</h4></div>
+          
         </div>
         <hr />
         <div>Name: {state.name}</div>

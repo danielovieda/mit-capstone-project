@@ -75,7 +75,7 @@ export default function Deposit() {
         <button
           className="btn btn-primary"
           type="button"
-          disabled={amount > ACTION.DAILY_LIMIT || loading}
+          disabled={amount > ACTION.DAILY_LIMIT || loading || !amount}
           onClick={handleDeposit}
         >
           {!loading ? "Make Deposit" : "Sending funds..."}

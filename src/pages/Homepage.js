@@ -4,24 +4,25 @@ import { UserContext } from "../context/userContext";
 import { ACTION } from "../App";
 import { SomeAlert } from "./Withdraw";
 import { Link } from "react-router-dom";
+import Logo from "../assets/logo.png";
 
 export default function Homepage() {
   const { state, dispatch } = useContext(UserContext);
 
   return (
     <>
-      <div class="card mb-3 w-100 mt-3 shadow" style={{ width: "18rem" }}>
-        <div class="card-body">
-          <h5 class="card-title">Welcome to Bank of Fake-Merica!</h5>
-          <p class="card-text">
+      <div className="card mb-3 w-100 mt-3 shadow" style={{ width: "18rem" }}>
+        <div className="card-body">
+          <h5 className="card-title mb-3">Welcome to Bank of Fake-Merica!</h5>
+          <img src={Logo} alt="Bank of Fake-Merica" className="img-fluid" />
+          <p className="card-text mt-3">
             The best banking experience you could possibly imagine. Why? Because
-            you can generate money with the click of a button! Simply login to
-            your account below. Don't worry, you can create one if you don't
-            have an account. Or just type in any email and password and maybe
-            you'll have an account!
-            <hr />
-            Isn't coding fun?
+            you can generate money with the click of a button! If you already
+            have an account, login below. Otherwise you can create your account
+            at any time.
           </p>
+          <hr />
+          <p>Isn't coding fun?</p>
         </div>
       </div>
 
@@ -51,7 +52,8 @@ export default function Homepage() {
           )}
           {state.userNotFound && (
             <SomeAlert alertStyle="alert alert-info">
-              Double-check your email or <Link to="/create-account">create a new account</Link>.
+              Double-check your email or{" "}
+              <Link to="/create-account">create a new account</Link>.
             </SomeAlert>
           )}
           <Formik
@@ -89,13 +91,13 @@ export default function Homepage() {
             }) => (
               <form onSubmit={handleSubmit}>
                 <div class="mb-3">
-                  <label for="exampleInputEmail1" class="form-label">
+                  <label htmlFor="exampleInputEmail1" className="form-label">
                     Email address
                   </label>
                   <input
                     name="email"
                     type="email"
-                    class="form-control"
+                    className="form-control"
                     id="exampleInputEmail1"
                     aria-describedby="emailHelp"
                     onChange={handleChange}
@@ -104,12 +106,12 @@ export default function Homepage() {
                   />
                 </div>
                 <div class="mb-3">
-                  <label for="exampleInputPassword1" class="form-label">
+                  <label htmlFor="exampleInputPassword1" className="form-label">
                     Password
                   </label>
                   <input
                     type="password"
-                    class="form-control"
+                    className="form-control"
                     id="exampleInputPassword1"
                     name="password"
                     onChange={handleChange}
@@ -118,15 +120,15 @@ export default function Homepage() {
                   />
                 </div>
                 {errors.email && touched.email && (
-                  <div class="mb-3">
+                  <div className="mb-3">
                     <div
-                      class="alert alert-danger alert-dismissible fade show"
+                      className="alert alert-danger alert-dismissible fade show"
                       role="alert"
                     >
                       {errors.email}
                       <button
                         type="button"
-                        class="btn-close"
+                        className="btn-close"
                         data-bs-dismiss="alert"
                         aria-label="Close"
                       ></button>
@@ -134,7 +136,7 @@ export default function Homepage() {
                   </div>
                 )}
                 <div className="mb-3">
-                  <button type="submit" class="btn btn-primary">
+                  <button type="submit" className="btn btn-primary">
                     Login
                   </button>
                 </div>

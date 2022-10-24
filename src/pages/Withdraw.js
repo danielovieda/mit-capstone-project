@@ -95,7 +95,7 @@ export default function Withdraw() {
         <button
           className="btn btn-primary"
           type="button"
-          disabled={state.balance <= 0 || loading}
+          disabled={state.balance <= 0 || loading || !amount}
           onClick={handleWithdraw}
         >
           {!loading ? "Get My Money" : "Taking out money..."}

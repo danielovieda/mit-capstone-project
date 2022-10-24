@@ -1,15 +1,15 @@
 import { useContext } from "react";
 import { UserContext } from "../context/userContext";
-import { Link } from "react-router-dom";
-import Logo from "../assets/logo.png"
+import { Link, useLocation } from "react-router-dom";
+import Logo from "../assets/logo.png";
 
 export default function Navigation() {
-  const { state, dispatch, logout } = useContext(UserContext);
+  const { state, logout } = useContext(UserContext);
+  const location = useLocation();
 
-  const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
   });
 
   return (
@@ -34,46 +34,59 @@ export default function Navigation() {
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
                 <Link to="/" style={{ textDecoration: "none" }}>
-                  <div className="nav-link active" aria-current="page">
+                  <div
+                    className={`nav-link ${
+                      location.pathname === "/" ? "active" : ""
+                    }`}
+                    aria-current="Home"
+                  >
                     Home
                   </div>
                 </Link>
               </li>
               {!state.token && (
                 <li className="nav-item">
-                    <Link
-                        to="/create-account"
-                        style={{ textDecoration: "none" }}
-                      >
-                  <div
-                    className="nav-link"
-                    tabindex="-1"
-                    aria-disabled="true"
-                  >
-                    Create Account
-                  </div></Link>
+                  <Link to="/create-account" style={{ textDecoration: "none" }}>
+                    <div
+                      className={`nav-link ${
+                        location.pathname === "/create-account" ? "active" : ""
+                      }`}
+                      tabindex="-1"
+                      aria-disabled="true"
+                    >
+                      Create Account
+                    </div>
+                  </Link>
                 </li>
               )}
 
               {state.token && (
                 <li className="nav-item">
-                    <Link
-                        to="/account"
-                        style={{ textDecoration: "none" }}
-                      >
-                  <div
-                    className="nav-link"
-                    tabindex="-1"
-                    aria-disabled="true"
-                  >
-                    My Account
-                  </div></Link>
+                  <Link to="/account" style={{ textDecoration: "none" }}>
+                    <div
+                      className={`nav-link ${
+                        location.pathname === "/account" ? "active" : ""
+                      }`}
+                      tabindex="-1"
+                      aria-disabled="true"
+                    >
+                      My Account
+                    </div>
+                  </Link>
                 </li>
               )}
               {state.token && (
                 <li className="nav-item dropdown">
                   <div
                     className="nav-link dropdown-toggle"
+                    style={{
+                      color:
+                        location.pathname === "/deposit" ||
+                        location.pathname === "/withdraw" ||
+                        location.pathname === "/transactions"
+                          ? "black"
+                          : "",
+                    }}
                     id="navbarDropdown"
                     role="button"
                     data-bs-toggle="dropdown"
@@ -115,27 +128,29 @@ export default function Navigation() {
               )}
               {state.token && (
                 <li className="nav-item">
-                    <Link
-                        to="/"
-                        style={{ textDecoration: "none" }}
-                      >
-                  <div
-                    className="nav-link"
-                    tabindex="-1"
-                    aria-disabled="true"
-                    onClick={logout}
-                  >
-                    Logout
-                  </div></Link>
+                  <Link to="/" style={{ textDecoration: "none" }}>
+                    <div
+                      className="nav-link"
+                      tabindex="-1"
+                      aria-disabled="true"
+                      onClick={logout}
+                    >
+                      Logout
+                    </div>
+                  </Link>
                 </li>
               )}
-              
             </ul>
-            {state.token && <li className="d-flex">
-              <h4><span class="badge bg-primary">Balance: {formatter.format(state.balance)}</span></h4>
-              </li> }
+            {state.token && (
+              <li className="d-flex">
+                <h4>
+                  <span class="badge bg-primary">
+                    Balance: {formatter.format(state.balance)}
+                  </span>
+                </h4>
+              </li>
+            )}
           </div>
-          
         </div>
       </nav>
     </>

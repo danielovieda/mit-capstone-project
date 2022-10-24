@@ -79,49 +79,49 @@ export default function CreateAccount() {
               /* and other goodies */
             }) => (
               <form onSubmit={handleSubmit}>
-                <div class="mb-3">
-                  <label for="name" class="form-label">
+                <div className="mb-3">
+                  <label htmlFor="name" className="form-label">
                     Name
                   </label>
                   <input
                     name="name"
                     type="text"
-                    class="form-control"
+                    className="form-control"
                     id="name"
                     aria-describedby="Your Name"
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.name}
                   />
-                  <div id="name" class="form-text">
+                  <div id="name" className="form-text">
                     Who are you?
                   </div>
                 </div>
-                <div class="mb-3">
-                  <label for="email" class="form-label">
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">
                     Email address
                   </label>
                   <input
                     name="email"
                     type="email"
-                    class="form-control"
+                    className="form-control"
                     id="email"
                     aria-describedby="emailHelp"
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.email}
                   />
-                  <div id="emailHelp" class="form-text">
+                  <div id="emailHelp" className="form-text">
                     We'll never share your email with anyone else.
                   </div>
                 </div>
-                <div class="mb-3">
-                  <label for="password" class="form-label">
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">
                     Password
                   </label>
                   <input
                     type="password"
-                    class="form-control"
+                    className="form-control"
                     id="password"
                     name="password"
                     onChange={handleChange}
@@ -147,7 +147,7 @@ export default function CreateAccount() {
                 <div className="mb-3">
                   <button
                     type="submit"
-                    class="btn btn-primary"
+                    className="btn btn-primary"
                     disabled={isSubmitting}
                   >
                     Create Account

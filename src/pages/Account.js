@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ACTION } from "../App";
 import Logo from "../assets/logo.png"
+import Transactions from "./Transactions";
 
 export default function Account() {
   const { state, dispatch } = useContext(UserContext);
@@ -21,8 +22,8 @@ export default function Account() {
     <>
       <div class="mt-3 shadow p-3 rounded">
         <div class="row p-2 pb-0">
-            <div className="col-sm-2"><img src={Logo} width={50} height={50} alt="Logo" /></div>
-            <div className="col-sm-10"><h4>Account Details</h4></div>
+            <div className="col-sm-2"><img src={Logo} width="75" height="38" alt="Logo" /></div>
+            <div className="col-sm-10 pe-1 text-end"><h4 className="ml-3">Account Details</h4></div>
           
         </div>
         <hr />
@@ -31,12 +32,12 @@ export default function Account() {
 
         <hr />
         <div class="row mt-4">
-          <div class="col-sm-6 text-center">
+          <div class="col-6 text-center">
             <Link to="/deposit">
               <button className="btn btn-primary mb-3">Deposit Money</button>
             </Link>
           </div>
-          <div class="col-sm-6 text-center">
+          <div class="col-6 text-center">
             <Link to="/withdraw">
               <button className="mb-3 btn btn-primary">Get Money</button>
             </Link>
@@ -47,8 +48,8 @@ export default function Account() {
         <div className="row mt-5 m-3">
           <h5 style={{ color: "red" }}>Danger Zone</h5>
           <br />
-          <button className="btn btn-danger mt-3" onClick={confirmDeleteFn}>
-            Delete My Account
+          <button className={`btn mt-3 ${!confirmDelete ? "btn-danger" : "btn-success"}`} onClick={confirmDeleteFn}>
+            {!confirmDelete ? "Delete My Account" : "Changed my mind! Keep account!"}
           </button>
 
           {confirmDelete && (
@@ -68,6 +69,8 @@ export default function Account() {
           )}
         </div>
       </div>
+
+      <Transactions limit={3} />
     </>
   );
 }

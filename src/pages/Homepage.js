@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import Logo from "../assets/logo.png";
 
 export default function Homepage() {
-  const { state, dispatch } = useContext(UserContext);
+  const { state, dispatch, login, error } = useContext(UserContext);
 
   return (
     <>
@@ -74,7 +74,7 @@ export default function Homepage() {
             }}
             onSubmit={(values, { setSubmitting }) => {
               setTimeout(() => {
-                dispatch({ type: ACTION.LOGIN, payload: values });
+                login(values)
                 setSubmitting(false);
               }, 400);
             }}
@@ -90,7 +90,7 @@ export default function Homepage() {
               /* and other goodies */
             }) => (
               <form onSubmit={handleSubmit}>
-                <div class="mb-3">
+                <div className="mb-3">
                   <label htmlFor="exampleInputEmail1" className="form-label">
                     Email address
                   </label>
@@ -105,7 +105,7 @@ export default function Homepage() {
                     value={values.email}
                   />
                 </div>
-                <div class="mb-3">
+                <div className="mb-3">
                   <label htmlFor="exampleInputPassword1" className="form-label">
                     Password
                   </label>
@@ -135,6 +135,20 @@ export default function Homepage() {
                     </div>
                   </div>
                 )}
+                {error.type === 'login' ? <div className="mb-3">
+                    <div
+                      className="alert alert-danger alert-dismissible fade show"
+                      role="alert"
+                    >
+                      {error.message}
+                      <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                  </div> : null}
                 <div className="mb-3">
                   <button type="submit" className="btn btn-primary">
                     Login

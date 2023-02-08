@@ -7,7 +7,7 @@ import { SomeAlert } from "./Withdraw";
 import Snackbar from "@mui/material/Snackbar";
 
 export default function Deposit() {
-  const { state, dispatch } = useContext(UserContext);
+  const { state, makeDeposit } = useContext(UserContext);
   const [amount, setAmount] = useState(null);
   const [notification, setNotification] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,8 +30,8 @@ export default function Deposit() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      dispatch({ type: ACTION.DEPOSIT, payload: amount });
+    setTimeout(async () => {
+      await makeDeposit(amount);
     }, 800);
     setAmount("");
     setTimeout(() => {

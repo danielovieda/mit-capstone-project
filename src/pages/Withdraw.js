@@ -14,7 +14,7 @@ export const SomeAlert = ({ children, alertStyle }) => {
 };
 
 export default function Withdraw() {
-  const { state, dispatch } = useContext(UserContext);
+  const { state, makeWithdrawal } = useContext(UserContext);
   const [amount, setAmount] = useState("");
   const [notification, setNotification] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -36,9 +36,15 @@ export default function Withdraw() {
       setAmount("");
       return;
     }
+    let total;
+    if (Math.abs(amount) > state.balance && state.balance > 0) {
+      total = (Math.abs(amount) * ACTION.FEE) + amount;
+    } else {
+      total = amount;
+    }
     setLoading(true);
     setTimeout(() => {
-      dispatch({ type: ACTION.WITHDRAW, payload: -amount });
+      makeWithdrawal(-total)
     }, 800);
     setAmount("");
     setTimeout(() => {

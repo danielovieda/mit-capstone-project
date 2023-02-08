@@ -143,11 +143,11 @@ export default function Navigation() {
             </ul>
             {state.token && (
               <li className="d-flex">
-                <h4>
+                <h5>
                   <span class="badge bg-primary">
-                    Balance: {formatter.format(state.balance)}
+                    {state.email} ({formatter.format(state.balance)})
                   </span>
-                </h4>
+                </h5>
               </li>
             )}
           </div>

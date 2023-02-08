@@ -8,13 +8,12 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import Transactions from "./pages/Transactions";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
-import Snackbar from "@mui/material/Snackbar";
 import CreateAccount from "./pages/CreateAccount";
+import {apiPost, apiDelete, apiPostNoAuth} from './utils/fetcher';
 
 export const ACTION = {
   DEPOSIT: "deposit",
@@ -29,6 +28,7 @@ export const ACTION = {
 };
 
 const initialState = {
+  _id: null,
   name: null,
   email: null,
   password: "",
@@ -44,119 +44,31 @@ const initialState = {
   invalidLogin: 0,
 };
 
-function reducer(state, action) {
-  switch (action.type) {
-    case ACTION.USER:
-      return {
-        ...state,
-        email: action.payload.email,
-        password: action.payload.password,
-      };
-    case ACTION.DEPOSIT:
-      return {
-        ...state,
-        transactions: [
-          ...state.transactions,
-          newTransaction("Online Deposit", action.payload),
-        ],
-        balance: calculateBalance([
-          ...state.transactions,
-          newTransaction("Balance", action.payload),
-        ]),
-      };
-    case ACTION.WITHDRAW:
-      if (Math.abs(parseFloat(action.payload)) > parseFloat(state.balance)) {
-        let transactionsWithFees = [];
-        let transactionItems = [
-          newTransaction(
-            "Overdraft Fee",
-            parseFloat(action.payload * ACTION.FEE)
-          ),
-          newTransaction("Online Withdrawal", action.payload),
-        ];
-        return {
-          ...state,
-          transactions: transactionsWithFees.concat(
-            ...state.transactions,
-            transactionItems
-          ),
-          balance: calculateBalance(
-            transactionsWithFees.concat(...state.transactions, transactionItems)
-          ),
-        };
-      } else {
-        return {
-          ...state,
-          transactions: [
-            ...state.transactions,
-            newTransaction("Online Withdrawal", action.payload),
-          ],
-          balance: calculateBalance([
-            ...state.transactions,
-            newTransaction("Online Withdrawal", action.payload),
-          ]),
-        };
-      }
-    case ACTION.LOGOUT:
-      return { ...state, token: false };
-    case ACTION.LOGIN:
-      let savedState = JSON.parse(localStorage.getItem(action.payload.email));
-      if (savedState) {
-        if (state.invalidLogin > 4) {
-          localStorage.removeItem(action.payload.email);
-          return { ...state, accountDeleted: true, userNotFound: false};
-        }
-        if (savedState.password === action.payload.password) {
-          
-          return {
-            ...savedState,
-            token: Date.now(),
-            invalidLogin: 0,
-            accountDeleted: false,
-            userNotFound: false
-          };
-        } else {
-          console.log(state)
-          return { ...state, invalidLogin: state.invalidLogin + 1, userNotFound: false };
-        }
-      }
-        else {
-          return {...state, userNotFound: true}
-        }
-    case ACTION.CREATE_ACCOUNT:
-      return {
-        ...initialState,
-        name: action.payload.name,
-        email: action.payload.email,
-        password: action.payload.password,
-        token: Date.now(),
-      };
-    case ACTION.DELETE_ACCOUNT:
-      localStorage.removeItem(state.email);
-      return {...initialState}
-    default:
-      throw new Error();
+
+async function newTransaction (type, amount, email) {
+  let transactions;
+  if (type === 'withdrawal') {
+    await apiPost('/withdrawal', {email, amount}).then((data) => {
+      return data.json();
+    }).then((data) => {
+      transactions = data;
+    }).catch((e) => {
+      alert(`Withdrawal error: ${e}`)
+    })
+  } else if (type === 'deposit') {
+    await apiPost('/deposit', {email, amount}).then((data) => {
+      return data.json();
+    }).then((data) => {
+      transactions = data;
+    }).catch((e) => {
+      alert(`Deposit error: ${e}`)
+    })
+  } else {
+    alert(`Error creating a new transaction.`)
   }
-}
 
-function newTransaction(type, amount) {
-  return { id: Date.now(), type: type, amount: amount };
-}
-
-function calculateBalance(transactions) {
-  let total = 0;
-  transactions.map((item) => {
-    if (
-      item.amount === null ||
-      item.amount === undefined ||
-      item.amount === ""
-    ) {
-    } else {
-      total = total + parseFloat(item.amount);
-    }
-  });
-
-  return total;
+  return transactions;
+  //return { id: Date.now(), type: type, amount: amount };
 }
 
 const Page404 = () => {
@@ -177,19 +89,34 @@ const Page404 = () => {
 };
 
 function App() {
-  const [state, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [state, setState] = useState(initialState);
+  const [error, setError] = useState({type: '', message: ''});
 
-  useEffect(() => {
-    if (state.accountToDelete) localStorage.removeItem(state.accountToDelete);
-    if (state.email && state.token) localStorage.setItem(`${state.email}`, JSON.stringify(state));
-  }, [state]);
+  // useEffect(() => {
+  //   if (state.accountToDelete) localStorage.removeItem(state.accountToDelete);
+  //   if (state.email && state.token) localStorage.setItem(`${state.email}`, JSON.stringify(state));
+  // }, [state]);
 
   const logout = () => {
-    dispatch({ type: ACTION.LOGOUT });
+    setState({...state, token: false})
   };
+
+  const login = async (values) => {
+    await apiPostNoAuth('/login', {...values}).then((data) => {
+      return data.json();
+    }).then((data) => {
+      if (data.message === 'Wrong password.') {
+        setError({type: 'login', message: 'The email or password you entered is incorrect.'})
+      } else if (data.message === 'User does not exist.') {
+        setError({type: 'login', message: 'The email or password you entered is incorrect.'})
+      } else {
+        localStorage.setItem('auth', data.token);
+        setState({...data})
+      }
+    }).catch((e) => {
+      alert(e)
+    })
+  }
 
   const YourHomepage = () => {
     return (
@@ -200,10 +127,30 @@ function App() {
     );
   };
 
+  const makeDeposit = async (amount) => {
+    const transactions = await newTransaction('deposit', amount, state.email);
+    setState({...state, ...transactions})
+  }
+
+  const makeWithdrawal = async (amount) => {
+    const transactions = await newTransaction('withdrawal', amount, state.email);
+    setState({...state, ...transactions})
+  }
+
+  const handleDelete = async () => {
+    await apiDelete('/user/delete', {email: state.email}).then((data) => {
+      return data.json();
+    }).then((data) => {
+      if (data) logout();
+    }).catch((e) => {
+      alert('error during delete', e)
+    })
+  }
+
   return (
     <>
       <Router>
-        <UserContext.Provider value={{ state, dispatch, logout }}>
+        <UserContext.Provider value={{ state, logout, login, error, makeDeposit, makeWithdrawal, handleDelete }}>
           <Navigation />
           <div class="container-lg">
             <div class="row">

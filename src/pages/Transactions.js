@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { UserContext } from "../context/userContext";
 import * as dayjs from "dayjs";
+import {startCase} from 'lodash';
 
 export const formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -33,16 +34,18 @@ export default function Transactions({ limit = 0 }) {
         </thead>
         <tbody>
           {state.transactions.map((item, index) => {
+            balance += +item.amount;
+
             if (index >= start)
               return (
                 <tr>
                   <th scope="row">{index + 1}</th>
-                  <td>{dayjs(item.id).format("MM/DD/YY hh:mma")}</td>
-                  <td>{item.type}</td>
+                  <td>{dayjs(item.timestamp).format("MM/DD/YY hh:mma")}</td>
+                  <td>{startCase(item.type)}</td>
                   <td style={{ color: item.amount < 0 ? "red" : "green" }}>
                     {formatter.format(item.amount)}
                   </td>
-                  <td>{formatter.format((balance = balance + item.amount))}</td>
+                  <td>{formatter.format(balance)}</td>
                 </tr>
               );
           })}

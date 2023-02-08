@@ -15,12 +15,12 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, client) {
 
 // create user account
 async function createUser(name, email, password) {
-    const hashedPassword = await hashPassword(password);
     const userExists = await db.collection('users').findOne({email})
     if (userExists) {
         log(`${email} (${name})`, 'account create attempt. duplicate email.')
         return false;
     }
+    const hashedPassword = await hashPassword(password);
     log(email, 'new account created.')
     return new Promise((resolve, reject) => {    
         const collection = db.collection('users');
@@ -31,23 +31,38 @@ async function createUser(name, email, password) {
     })
 }
 
-async function createTransaction(type, amount, timestamp) {
-    return new Promise((resolve, reject) => {
-        const collection = db.collection('transactions');
-        const doc = {type, amount, timestamp};
-        collection.insertOne(doc, {w:1}, (err, result) => {
-            err ? reject(err) : resolve(doc)
-        })
-    })
+async function createTransaction(email, type, amount) {
+    if (type === 'deposit' & amount <= 0) return {message: 'Deposit amount must be more than zero.'};
+    if (type === 'withdrawal' & amount >= 0) return {message: 'Withdrawal amount must be negative.'};
+    if (email == null || type == null || amount == null ) return {message: 'Missing something.'}
+    const timestamp = dayjs().format();
+    const doc = {email, type, amount, timestamp};
+    const transactions = await getTransactions(email);
+    let sum = +amount;
+    if (transactions) {
+        sum += getBalance(transactions);
+    }
+
+    
+    if (type === 'withdrawal' && (sum - +amount >= 0)) {
+         await db.collection('transactions').insertOne(doc, {w:1});
+        const updatedTransactions = await db.collection('transactions').find({email}).toArray()
+        return {transactions: updatedTransactions, balance: sum}
+    } else if (type === 'deposit') {
+        await db.collection('transactions').insertOne(doc, {w:1});
+        const updatedTransactions = await db.collection('transactions').find({email}).toArray()
+        return {transactions: updatedTransactions, balance: sum}
+    } else {
+        return {message: 'Unable to make a transaction.'}
+    }
 }
 
 
-// all users
-function all(){
+function getTransactions(email){
     return new Promise((resolve, reject) => {    
-        const customers = db
-            .collection('users')
-            .find({})
+        db
+            .collection('transactions')
+            .find({email})
             .toArray(function(err, docs) {
                 err ? reject(err) : resolve(docs);
         });    
@@ -58,9 +73,21 @@ async function login(email, password) {
     //find user account by email
     //match password
     const user = await db.collection('users').findOne({email: email})
+    if (!user) {
+        log(email, `Email account doesn't exist.`)
+        return {error: 'Email does not exist.'}
+    }
     const match = await comparePassword(password, user.password);
-    match ? log(email, 'logged in successfully') : log(email, 'wrong password given');
-    return match;
+    if (match) {
+        log(email, 'logged in successfully');
+        const transactions = await getTransactions(email);
+        const balance = getBalance(transactions);
+        delete user.password;
+        return {...user, transactions, balance}
+    } else {
+        log(email, 'wrong password given');
+        return {error: 'Wrong password.'}
+    }
 }
 
 function logout(email) {
@@ -77,21 +104,18 @@ function log(user, action) {
     })
 }
 
-async function deleteUser(email, password) {
-    const user = await db.collection('users').findOne({email: email});
-    const match = await comparePassword(password, user.password);
-    if (match) {
-        log(email, 'account deleted.')
-        return await db.collection('users').deleteOne({email: email})
+async function deleteUser(email) {
+    log(email, 'account deletion requested.')
+    const deletedTransactions = await db.collection('transactions').deleteMany({email: email});
+    if (deletedTransactions) log(email, 'all transactions deleted')
+    const deletedUser = await db.collection('users').deleteOne({email: email})
+    if (deletedUser) log(email, 'account deleted.')
+    if (deletedTransactions && deletedUser) {
+        return true;
     } else {
-        return false
+        return false;
     }
 }
-
-async function updateUser(name, email, password) {
-    return true;
-}
-
 
 
 async function comparePassword(password, hash) {
@@ -105,7 +129,15 @@ async function hashPassword(password) {
     return hash;
   }
 
+function getBalance(transactions) {
+    let balance = 0;
+    transactions.forEach(item => {
+        balance += +item.amount;
+    })
+    return balance;
+}
 
 
 
-module.exports = {createUser, login, logout, createTransaction, deleteUser, updateUser};
+
+module.exports = {createUser, login, logout, createTransaction, deleteUser, getTransactions};

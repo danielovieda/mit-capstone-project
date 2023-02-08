@@ -7,12 +7,8 @@ import Logo from "../assets/logo.png"
 import Transactions from "./Transactions";
 
 export default function Account() {
-  const { state, dispatch } = useContext(UserContext);
+  const { state, handleDelete } = useContext(UserContext);
   const [ confirmDelete, setConfirmDelete ] = useState(false);
-
-  const handleDelete = () => {
-    dispatch({ type: ACTION.DELETE_ACCOUNT });
-  };
 
   const confirmDeleteFn = () => {
     setConfirmDelete(!confirmDelete);

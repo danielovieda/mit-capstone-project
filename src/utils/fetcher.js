@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:1337'
+const baseUrl = 'http://178.128.154.92:1337'
 export async function apiPostNoAuth(url, body) {
     return await fetch(`${baseUrl}${url}`, {
         method: 'post',

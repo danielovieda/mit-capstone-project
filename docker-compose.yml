@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+    image: "danielovieda/backend"
+    ports:
+      - "1337:1337"
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    image: "danielovieda/frontend"
+    ports:
+      - "3000:3000"
+    links:
+      - "backend:be"

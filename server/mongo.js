@@ -95,6 +95,7 @@ function logout(email) {
 }
 
 function log(user, action) {
+    console.log(`(${user} @ ${dayjs().format('MM-DD-YY HH:mm:ss')}): ${action}`);
     return new Promise((resolve, reject) => {    
         const collection = db.collection('logs');
         const doc = {user, action, timestamp: dayjs().format()};
